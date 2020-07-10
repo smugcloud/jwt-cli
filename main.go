@@ -21,7 +21,7 @@ type ConvertedTimes struct {
 	convExpiration time.Time
 	convIssued     time.Time
 	json           []byte
-	out            bytes.Buffer
+	out            *bytes.Buffer
 }
 
 func main() {
@@ -31,16 +31,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("error decoding base64 %v", err)
 	}
-	ct := ConvertedTimes{}
+	ct := ConvertedTimes{
+		out:  &bytes.Buffer{},
+		json: decoded,
+	}
 	json.Unmarshal(decoded, &ct)
 	ct.convertTimes()
-	ct.out = bytes.Buffer{}
-	ct.json = decoded
 	ct.writeOut()
 }
 
 func (c *ConvertedTimes) writeOut() {
-	json.Indent(&c.out, c.json, "", "\t")
+	json.Indent(c.out, c.json, "", "\t")
 	c.out.Write([]byte("\n"))
 	c.out.Write([]byte(fmt.Sprintf("Expires: %s\n", c.convExpiration)))
 	c.out.Write([]byte(fmt.Sprintf("Issued: %s\n", c.convIssued)))

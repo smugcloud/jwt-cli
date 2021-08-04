@@ -27,6 +27,10 @@ type ConvertedTimes struct {
 func main() {
 	validate()
 	sp := strings.Split(jwt, ".")
+	if len(sp) < 2 {
+		fmt.Println("invalid jwt format")
+		os.Exit(0)
+	}
 	decoded, err := base64.RawURLEncoding.DecodeString(sp[1])
 	if err != nil {
 		log.Fatalf("error decoding base64 %v", err)

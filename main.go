@@ -31,7 +31,14 @@ func main() {
 		fmt.Println("invalid jwt format")
 		os.Exit(0)
 	}
-	decoded, err := base64.RawURLEncoding.DecodeString(sp[1])
+	var decoded []byte
+	var err error
+	switch len(sp) {
+	case 2:
+		decoded, err = base64.RawURLEncoding.DecodeString(sp[0])
+	case 3:
+		decoded, err = base64.RawURLEncoding.DecodeString(sp[1])
+	}
 	if err != nil {
 		log.Fatalf("error decoding base64 %v", err)
 	}
@@ -39,7 +46,10 @@ func main() {
 		out:  &bytes.Buffer{},
 		json: decoded,
 	}
-	json.Unmarshal(decoded, &ct)
+	err = json.Unmarshal(decoded, &ct)
+	if err != nil {
+		log.Fatalf("error unmarshaling %v", err)
+	}
 	ct.convertTimes()
 	ct.writeOut()
 }
